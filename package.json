@@ -9,7 +9,11 @@
   },
   "dependencies": {
     "core-js": "^3.6.5",
-    "vue": "^2.6.11"
+    "jquery": "^3.6.0",
+    "vue": "^2.6.11",
+    "vue-draggable-resizable": "^2.3.0",
+    "vue-select": "^3.18.3",
+    "vue-top-progress": "^0.7.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.15",
