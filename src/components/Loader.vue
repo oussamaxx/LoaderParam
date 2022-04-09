@@ -1,9 +1,26 @@
 <template>
   <transition name="fade">
     <div id="content_loading" v-if="show" style="position:absolute;z-index:9999;width:100%;height:100%;background:#f2f6f9;">
-      <vue-draggable-resizable class="popup-pannel" :drag-handle="'.header'" :parent="true" h="auto" :w="400" :max-width="400">
-        <div class="header">Drag Only Here</div>
-        <div class="content">
+      <vue-draggable-resizable class="popup-pannel" :drag-handle="'.header'" :parent="true"
+                               :style="{'overflow': editorMinimized ? 'hidden': null}"
+                               :active="true"
+                               class-name-active="active-pannel"
+                               @activated="onEditorActivated"
+                               @deactivated="onEditorDeactivated"
+                               :h="panelHight" :w="400" :max-width="400" :max-height="800" @resizing="onResize">
+        <div class="header" style="max-height: 20px;">
+          <div class="row">
+            <div class="eleven columns">
+              Editor (drag)
+            </div>
+            <div class="one column">
+              <div @click="minimizeEditor" style="cursor:pointer"> {{editorMinimized ? '➕' : '➖'}} </div>
+            </div>
+
+          </div>
+
+        </div>
+        <div class="content" ref="editorContent">
           <label>
             <input type="checkbox" v-model="showBubbles">
             <span class="label-body">Show Bubbles</span>
@@ -14,33 +31,43 @@
           </label>
           <div>
             <label for="progresscolorInput">Progress Color</label>
-            <input class="u-full-width" type="text" placeholder="#2d" id="progresscolorInput">
+            <input class="u-full-width" type="color" placeholder="#2d" v-model="progressColor" id="progresscolorInput">
           </div>
 
           <hr>
           <label><strong>Bubbles:</strong></label>
-          <div class="row" style="margin-bottom: 10px;">
-            <label for="exampleRecipientInput">Lang Code</label>
-            <v-select :options="bubbles" taggable :clearable="false" id="exampleRecipientInput"/>
+
+          <label for="exampleRecipientInput">Lang Code</label>
+          <v-select :options="availbleLangs" v-model="selected_lang" taggable :clearable="false" id="exampleRecipientInput"/>
+          <div style="overflow: auto; max-height:240px;">
+            <bubbleEdit style="margin: 10px;" v-for="(bubble,i) in bubbles" :key="i" :index="i" :bubble="bubble"/>
           </div>
 
-          <div class="row">
-            <bubbleEdit></bubbleEdit>
+          <div style="text-align: center; margin-top: 10px">
+            <button @click="addBubble" v-if="bubbles.length < 5">Add Bubble +</button>
           </div>
+
+
           <hr>
 
+          <div style="text-align: center">
+            <div class="row">
+              <button class="button-primary" @click="simulateLoading">Replay Animation 🔄</button>
+            </div>
+            <div class="row">
+              <button class="button-primary" >Generate Params 📥</button>
+            </div>
+          </div>
 
-          <div class="row">
-            <button class="button-primary" @click="simulateLoading">Replay Animation 🔄</button>
-          </div>
-          <div class="row">
-            <button class="button-primary" >Generate Params 📥</button>
-          </div>
 
         </div>
       </vue-draggable-resizable>
 
-      <vue-topprogress ref="topProgress" :height="5"></vue-topprogress>
+
+
+
+
+      <vue-topprogress ref="topProgress" :color="progressColor" :height="5"></vue-topprogress>
       <div :class="{'slideup': showBubbles}" style="width:100%;height:25%;display: flex;align-items: center;justify-content: center; transform: translateY(30vh)">
         <span  class="loading-progress">{{ progress }}%</span>
       </div>
@@ -80,17 +107,28 @@ export default {
   data:function(){
     return {
       progress: 0,
+      panelHight: 'auto',
       selected_lang: 'fr',
       clientLogoSrc: null,
       Dfds: [],
       isLoaded: false,
       show: true,
-      bubbles: [],
       showBubbles: false,
       bubbleProgress: 0,
       startingProgress: 0,
       clientIconContainerCss: null,
-      playAnimation: true
+      playAnimation: true,
+      progressColor: '#2299DD',
+      editorMinimized: false,
+      bubblesParam: {
+        "fr":[
+          {style: {}, size: 200,content: [{label:"test", style: {'text-weigt': 'bold'}}]}
+        ],
+        "en":[
+          {content: [{label:"in english"}]},
+          {content: [{label:"Second bulle", style: {'font-weight': 'bold', 'color':'red'}}]}
+        ]
+      }
     }
   },
   components:{
@@ -100,9 +138,32 @@ export default {
     VueDraggableResizable
   },
   computed:{
-
+    bubbles(){
+      return this.bubblesParam[this.selected_lang]
+    },
+    availbleLangs(){
+      return Object.keys(this.bubblesParam)
+    }
   },
   methods:{
+    onResize(left, top, width, height) {
+      //this.w = width
+      this.panelHight = height
+    },
+    onEditorActivated(){
+      if(this.editorMinimized)
+        this.minimizeEditor();
+    },
+    onEditorDeactivated(){
+      if(!this.editorMinimized)
+        this.minimizeEditor()
+    },
+    minimizeEditor(){
+      // set panel overflow to hidden and its height to the height of the header
+      this.editorMinimized = !this.editorMinimized;
+      this.panelHight = this.editorMinimized ? 50 : this.$refs.editorContent.scrollHeight + 50;
+
+    },
     showProgress(value){
       this.progress = Math.floor(value)
       if(this.showBubbles)
@@ -123,19 +184,17 @@ export default {
       }
 
     },
+    addBubble(){
+      this.bubbles.push({
+        content:[],
+        style:{},
+        opacity: 100
+      })
+      setTimeout(()=>{
+        this.panelHight = this.$refs.editorContent.scrollHeight+ 50;
+      }, 100)
+    },
     loadBubbles() {
-      let param = {
-        "fr":[
-          {content: [{label:"test", style: {'text-weigt': 'bold'}}]}
-        ]
-      };
-      if(param[this.selected_lang] && param[this.selected_lang].length){
-        this.bubbles = param[this.selected_lang]
-      } else if(param['fr'] && param['fr'].length){
-        this.bubbles = param['fr']
-      } else {
-        return;
-      }
       this.startingProgress = (100 - this.progress);
       this.bubbleProgress = this.startingProgress / this.bubbles.length;
       this.showBubbles = true;
@@ -203,14 +262,23 @@ export default {
 </script>
 
 <style scoped>
-
+hr{
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
 .fade-enter-active, .fade-leave-active {
   transition: opacity .5s;
 }
 .fade-enter, .fade-leave-to {
   opacity: 0;
 }
-
+.popup-pannel {
+  opacity: 0.2;
+  transition: opacity 0.5s;
+}
+.active-pannel{
+  opacity:1;
+}
 .bull-container{
   height:55%;margin-left: 20%; margin-right: 20%; display: flex;
   flex-direction: row;
