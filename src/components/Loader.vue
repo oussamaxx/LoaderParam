@@ -1,6 +1,7 @@
 <template>
   <transition name="fade">
-    <div id="content_loading" v-if="show" style="position:absolute;z-index:9999;width:100%;height:100%;background:#f2f6f9;">
+    <div id="content_loading" style="position:absolute;z-index:9999;width:100%;height:100%;background:#f2f6f9;">
+      <import-param @imported-param="importedParam"/>
       <vue-draggable-resizable class="popup-pannel" :drag-handle="'.header'" :parent="true"
                                :style="{'overflow': editorMinimized ? 'hidden': null}"
                                :active="true"
@@ -20,45 +21,59 @@
           </div>
 
         </div>
+
         <div class="content" ref="editorContent">
-          <label>
-            <input type="checkbox" v-model="showBubbles">
-            <span class="label-body">Show Bubbles</span>
-          </label>
-          <label>
-            <input type="checkbox" v-model="playAnimation">
-            <span class="label-body">Bubble Animation</span>
-          </label>
-          <div>
-            <label for="progresscolorInput">Progress Color</label>
-            <input class="u-full-width" type="color" placeholder="#2d" v-model="progressColor" id="progresscolorInput">
-          </div>
-
-          <hr>
-          <label><strong>Bubbles:</strong></label>
-
-          <label for="exampleRecipientInput">Lang Code</label>
-          <v-select :options="availbleLangs" v-model="selected_lang" taggable :clearable="false" id="exampleRecipientInput"/>
-          <div style="overflow: auto; max-height:240px;">
-            <bubbleEdit style="margin: 10px;" v-for="(bubble,i) in bubbles" :key="i" :index="i" :bubble="bubble"/>
-          </div>
-
-          <div style="text-align: center; margin-top: 10px">
-            <button @click="addBubble" v-if="bubbles.length < 5">Add Bubble +</button>
-          </div>
-
-
-          <hr>
-
-          <div style="text-align: center">
-            <div class="row">
-              <button class="button-primary" @click="simulateLoading">Replay Animation 🔄</button>
+          <template v-if="singleEditMode && selectedBubble">
+            <div style="overflow: auto; max-height:240px;">
+              <bubbleEdit :index="0" :bubble="selectedBubble"/>
             </div>
-            <div class="row">
-              <button class="button-primary" >Generate Params 📥</button>
+          </template>
+          <template v-else>
+            <label>
+              <input type="checkbox" v-model="showBubbles">
+              <span class="label-body">Show Bubbles</span>
+            </label>
+            <label>
+              <input type="checkbox" v-model="playAnimation">
+              <span class="label-body">Bubble Animation</span>
+            </label>
+            <div>
+              <label for="progresscolorInput">Progress Color</label>
+              <input class="u-full-width" type="color" placeholder="#2d" v-model="progressColor" id="progresscolorInput">
             </div>
-          </div>
 
+            <hr>
+            <label><strong>Bubbles:</strong></label>
+
+            <label for="exampleRecipientInput">Lang Code</label>
+            <v-select :options="availbleLangs" v-model="selected_lang" taggable
+                      @option:created="createLang"
+                      :clearable="false" id="exampleRecipientInput"/>
+            <div style="overflow: auto; max-height:240px;">
+              <bubbleEdit style="margin: 10px;" v-for="(bubble,i) in bubbles" @onDeleteBubble="deleteBubble(i)" :key="i" :index="i" :bubble="bubble"/>
+            </div>
+
+            <div style="text-align: center; margin-top: 10px">
+              <button @click="addBubble" v-if="bubbles.length < 5">Add Bubble +</button>
+            </div>
+
+
+            <hr>
+
+            <div style="text-align: center">
+              <div class="row">
+                <button class="button-primary" @click="simulateLoading">Replay Animation 🔄</button>
+              </div>
+              <div class="row">
+                <div class="six columns">
+                  <button class="button-primary" >Export Params 📥</button>
+                </div>
+                <div class="six columns">
+                  <button class="button-primary" @click="openImportModal" >Import Params 📤</button>
+                </div>
+              </div>
+            </div>
+          </template>
 
         </div>
       </vue-draggable-resizable>
@@ -73,9 +88,9 @@
       </div>
       <div class="bull-container" :class="{'popup-animate': showBubbles}">
         <template v-if="showBubbles">
-          <LoginBubble :class="{'bubble': playAnimation}" :opacity-percentage="bubble.opacity" :size="bubble.size" :style="bubble.style" v-for="(bubble,b_i) in bubbles" :key="b_i">
+          <LoginBubble v-for="(bubble,b_i) in bubbles" @click.native="onSelectBubble(bubble, b_i)" :class="{'bubble': playAnimation}" :opacity-percentage="bubble.opacity" :size="bubble.size" :style="bubble.style"  :key="b_i">
             <template v-for="(line,i) in bubble.content">
-              <span :key="i" :style="{'font-size': computeBullFontSize(bubble.size), ...line.style}">{{ line.label }}</span>
+              <span   :key="i" :style="{'font-size': computeBullFontSize(bubble.size), ...line.style}">{{ line.label }}</span>
             </template>
           </LoginBubble>
         </template>
@@ -100,8 +115,10 @@
 import { vueTopprogress } from 'vue-top-progress'
 import LoginBubble from '@/components/LoginBubble'
 import bubbleEdit from '@/components/bubbleEdit'
+import importParam from '@/components/importParam'
 import VueDraggableResizable from 'vue-draggable-resizable'
 import $ from "jquery";
+import ImportParam from "@/components/importParam";
 export default {
   name: "LoaderView",
   data:function(){
@@ -112,7 +129,6 @@ export default {
       clientLogoSrc: null,
       Dfds: [],
       isLoaded: false,
-      show: true,
       showBubbles: false,
       bubbleProgress: 0,
       startingProgress: 0,
@@ -120,7 +136,8 @@ export default {
       playAnimation: true,
       progressColor: '#2299DD',
       editorMinimized: false,
-      bubblesParam: {
+      singleEditMode: false,
+      param: {
         "fr":[
           {style: {}, size: 200,content: [{label:"test", style: {'text-weigt': 'bold'}}]}
         ],
@@ -128,14 +145,18 @@ export default {
           {content: [{label:"in english"}]},
           {content: [{label:"Second bulle", style: {'font-weight': 'bold', 'color':'red'}}]}
         ]
-      }
+      },
+      selectedBubble: null,
     }
   },
   components:{
+    ImportParam,
+    // eslint-disable-next-line vue/no-unused-components
     vueTopprogress,
     LoginBubble,
     bubbleEdit,
-    VueDraggableResizable
+    VueDraggableResizable,
+    importParam
   },
   computed:{
     bubbles(){
@@ -146,6 +167,17 @@ export default {
     }
   },
   methods:{
+    openImportModal(){
+      this.$modal.show('import-dialog')
+
+    },
+    onSelectBubble(bubble){
+      this.selectedBubble = bubble;
+      this.singleEditMode = true;
+    },
+    deleteBubble(index){
+      this.bubbles.splice(index, 1)
+    },
     onResize(left, top, width, height) {
       //this.w = width
       this.panelHight = height
@@ -183,6 +215,10 @@ export default {
 
       }
 
+    },
+    createLang(lang){
+      console.log("created lang:", lang)
+      this.$set(this.bubblesParam, lang, [])
     },
     addBubble(){
       this.bubbles.push({

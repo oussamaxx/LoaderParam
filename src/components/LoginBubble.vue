@@ -3,12 +3,10 @@ this component accept text as slot and recognize new lines in html due to <pre><
 & opacity as number
 -->
 <template>
-  <div>
     <div class="bubble-circle bubble-container"
          v-bind:style="{ opacity: opacityPercentage + '%', height: size + 'px', width: size + 'px'}">
       <slot></slot>
     </div>
-  </div>
 </template>
 <script>
 export default {

@@ -1,6 +1,10 @@
 <template>
   <div class="collapsible-group">
-    <div ref="collapsible" class="collapsible">Bubble {{ index }}</div>
+    <div ref="collapsible" class="collapsible">
+      Bubble {{ index }}
+      <span @click="deleteBubble" style="padding: 0;
+    margin-left: 212px;">🗑️</span>
+    </div>
     <div class="content" ref="content">
       <div style="margin-top:10px">
         <label>Style</label>
@@ -10,11 +14,21 @@
       <div>
         <label>Content</label>
         <div v-for="(line, i) in bubble.content" :key="i">
-          <label :for="'label'+i">Label {{i+1}} :</label>
+          <div class="row">
+            <div class="nine columns">
+              <label :for="'label'+i">Label {{i+1}} :</label>
+            </div>
+            <div class="three columns">
+              <button @click="deleteLabel(i)">🗑️</button>
+            </div>
+          </div>
           <input class="u-full-width" type="text" placeholder="Text..." v-model="line.label" :id="'label'+i">
           <styleEditor :element="line" :noSize="true"/>
+
         </div>
         <button @click="addLabel" v-if="bubble.content.length < 3">Add Label +</button>
+
+
       </div>
     </div>
   </div>
@@ -37,6 +51,12 @@ export default {
         this.$refs.content.style.maxHeight = this.$refs.content.scrollHeight + "px";
       }, 100)
 
+    },
+    deleteLabel(index){
+      this.bubble.content.splice(index,1)
+    },
+    deleteBubble(){
+      this.$emit("onDeleteBubble", this.bubble)
     },
     initCollapsible: function(){
       let coll = this.$refs.collapsible;
