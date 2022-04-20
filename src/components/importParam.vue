@@ -213,7 +213,6 @@ export default {
         this.error = "Param should have a JSON format"
         return;
       }
-      console.log("PARAM", this.param)
 
       //this.$forceUpdate()
       this.$v.param.$touch()
@@ -258,14 +257,14 @@ export default {
             // cleaning is here
             // forEach language check style/content  if there is non add an empty object/array
             if(!bubble.style.required){
-              bubble.style.$model = {}
+              this.$set(this.param.bubbles[lang][bubble_index], 'style', {})
             } else if(!bubble.style.isObject){
               this.error = `bubbles[${lang}][${bubble_index}].style should be an Object`
               return;
             }
 
             if(!bubble.content.required){
-              bubble.content.$model = []
+              this.$set(this.param.bubbles[lang][bubble_index], 'content', [])
             } else if(!bubble.content.isArray){
               this.error = `bubbles[${lang}][${bubble_index}].content should be an Array`
             } else {
@@ -273,7 +272,7 @@ export default {
               for(const label_index in bubble.content.$each.$iter){
                 let label_row = bubble.content.$each.$iter[label_index]
                 if(!label_row.style.required){
-                  label_row.style.$model = {}
+                  this.$set(this.param.bubbles[lang][bubble_index].content[label_index], 'style', {})
                 } else if(!label_row.style.isObject){
                   this.error = `bubbles[${lang}][${bubble_index}].content[${label_index}].style should be an Object`
                   return;
@@ -285,6 +284,8 @@ export default {
           }
         }
       }
+      console.log("PARAM", this.param)
+
       // everthing is good  emit the correct param
       this.$emit('imported-param', this.param)
 

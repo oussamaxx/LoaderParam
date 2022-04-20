@@ -138,13 +138,9 @@ export default {
       editorMinimized: false,
       singleEditMode: false,
       param: {
-        "fr":[
-          {style: {}, size: 200,content: [{label:"test", style: {'text-weigt': 'bold'}}]}
-        ],
-        "en":[
-          {content: [{label:"in english"}]},
-          {content: [{label:"Second bulle", style: {'font-weight': 'bold', 'color':'red'}}]}
-        ]
+        bubbles: {
+          "fr": []
+        }
       },
       selectedBubble: null,
     }
@@ -160,16 +156,21 @@ export default {
   },
   computed:{
     bubbles(){
-      return this.bubblesParam[this.selected_lang]
+      return this.param.bubbles[this.selected_lang]
     },
     availbleLangs(){
-      return Object.keys(this.bubblesParam)
+      return Object.keys(this.param.bubbles)
     }
   },
   methods:{
+    importedParam(param){
+      // todo: select default language
+      this.param = param
+      this.$modal.hide('import-dialog')
+      this.simulateLoading()
+    },
     openImportModal(){
       this.$modal.show('import-dialog')
-
     },
     onSelectBubble(bubble){
       this.selectedBubble = bubble;
@@ -218,7 +219,7 @@ export default {
     },
     createLang(lang){
       console.log("created lang:", lang)
-      this.$set(this.bubblesParam, lang, [])
+      this.$set(this.param.bubbles, lang, [])
     },
     addBubble(){
       this.bubbles.push({
