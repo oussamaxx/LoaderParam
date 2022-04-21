@@ -164,7 +164,12 @@ export default {
   },
   methods:{
     importedParam(param){
-      // todo: select default language
+      // if no language (no bubbles) set default one
+      if(!Object.keys(param.bubbles).length){
+        param.bubbles.fr = []
+      }
+      // select the first language that comes in bubbles
+      this.selected_lang = Object.keys(param.bubbles)[0]
       this.param = param
       this.$modal.hide('import-dialog')
       this.simulateLoading()
