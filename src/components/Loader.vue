@@ -3,12 +3,12 @@
     <div id="content_loading" style="position:absolute;z-index:9999;width:100%;height:100%;background:#f2f6f9;">
       <import-param @imported-param="importedParam"/>
       <vue-draggable-resizable class="popup-pannel" :drag-handle="'.header'" :parent="true"
-                               :style="{'overflow': editorMinimized ? 'hidden': null}"
                                :active="true"
                                class-name-active="active-pannel"
                                @activated="onEditorActivated"
                                @deactivated="onEditorDeactivated"
-                               :h="panelHight" :w="400" :max-width="400" :max-height="800" @resizing="onResize">
+                               :resizable="false"
+                               h="auto" :w="400" :max-width="400" :max-height="800">
         <div class="header" style="max-height: 20px;">
           <div class="row">
             <div class="eleven columns">
@@ -22,7 +22,7 @@
 
         </div>
 
-        <div class="content" ref="editorContent">
+        <div class="content" ref="editorContent" :style="{'display': editorMinimized ? 'none': null}">
           <template v-if="singleEditMode && selectedBubble">
             <div style="overflow: auto; max-height:240px;">
               <bubbleEdit :index="0" :bubble="selectedBubble"/>
@@ -30,16 +30,16 @@
           </template>
           <template v-else>
             <label>
-              <input type="checkbox" v-model="showBubbles">
+              <input type="checkbox" v-model="param.showBubbles">
               <span class="label-body">Show Bubbles</span>
             </label>
             <label>
-              <input type="checkbox" v-model="playAnimation">
+              <input type="checkbox" v-model="param.playAnimation">
               <span class="label-body">Bubble Animation</span>
             </label>
             <div>
               <label for="progresscolorInput">Progress Color</label>
-              <input class="u-full-width" type="color" placeholder="#2d" v-model="progressColor" id="progresscolorInput">
+              <input class="u-full-width" type="color" placeholder="#2d" v-model="param.progressColor" id="progresscolorInput">
             </div>
 
             <hr>
@@ -82,13 +82,13 @@
 
 
 
-      <vue-topprogress ref="topProgress" :color="progressColor" :height="5"></vue-topprogress>
-      <div :class="{'slideup': showBubbles}" style="width:100%;height:25%;display: flex;align-items: center;justify-content: center; transform: translateY(30vh)">
+      <vue-topprogress ref="topProgress" :color="param.progressColor" :height="5"></vue-topprogress>
+      <div :class="{'slideup': param.showBubbles}" style="width:100%;height:25%;display: flex;align-items: center;justify-content: center; transform: translateY(30vh)">
         <span  class="loading-progress">{{ progress }}%</span>
       </div>
-      <div class="bull-container" :class="{'popup-animate': showBubbles}">
-        <template v-if="showBubbles">
-          <LoginBubble v-for="(bubble,b_i) in bubbles" @click.native="onSelectBubble(bubble, b_i)" :class="{'bubble': playAnimation}" :opacity-percentage="bubble.opacity" :size="bubble.size" :style="bubble.style"  :key="b_i">
+      <div class="bull-container" :class="{'popup-animate': param.showBubbles}">
+        <template v-if="param.showBubbles">
+          <LoginBubble v-for="(bubble,b_i) in bubbles" @click.native="onSelectBubble(bubble, b_i)" :class="{'bubble': param.playAnimation}" :opacity-percentage="bubble.opacity" :size="bubble.size" :style="bubble.style"  :key="b_i">
             <template v-for="(line,i) in bubble.content">
               <span   :key="i" :style="{'font-size': computeBullFontSize(bubble.size), ...line.style}">{{ line.label }}</span>
             </template>
@@ -124,20 +124,19 @@ export default {
   data:function(){
     return {
       progress: 0,
-      panelHight: 'auto',
       selected_lang: 'fr',
       clientLogoSrc: null,
       Dfds: [],
       isLoaded: false,
-      showBubbles: false,
       bubbleProgress: 0,
       startingProgress: 0,
       clientIconContainerCss: null,
-      playAnimation: true,
-      progressColor: '#2299DD',
       editorMinimized: false,
       singleEditMode: false,
       param: {
+        progressColor: '#2299DD',
+        playAnimation: true,
+        showBubbles: true,
         bubbles: {
           "fr": []
         }
@@ -184,10 +183,6 @@ export default {
     deleteBubble(index){
       this.bubbles.splice(index, 1)
     },
-    onResize(left, top, width, height) {
-      //this.w = width
-      this.panelHight = height
-    },
     onEditorActivated(){
       if(this.editorMinimized)
         this.minimizeEditor();
@@ -199,12 +194,11 @@ export default {
     minimizeEditor(){
       // set panel overflow to hidden and its height to the height of the header
       this.editorMinimized = !this.editorMinimized;
-      this.panelHight = this.editorMinimized ? 50 : this.$refs.editorContent.scrollHeight + 50;
 
     },
     showProgress(value){
       this.progress = Math.floor(value)
-      if(this.showBubbles)
+      if(this.param.showBubbles)
         this.showBubble();
     },
     showBubble(){
@@ -232,14 +226,11 @@ export default {
         style:{},
         opacity: 100
       })
-      setTimeout(()=>{
-        this.panelHight = this.$refs.editorContent.scrollHeight+ 50;
-      }, 100)
     },
     loadBubbles() {
       this.startingProgress = (100 - this.progress);
       this.bubbleProgress = this.startingProgress / this.bubbles.length;
-      this.showBubbles = true;
+      //this.showBubbles = true;
     },
     init(){
       if (sessionStorage.getItem("hideMenu") != "true"){
