@@ -11,12 +11,10 @@
     text-align: center;
     margin-top: 1em;
 }
-.popup-pannel>.header{
-    background-color:orange;
-    padding: 1em;
+.panel-heading{
     cursor: move;
 }
-.popup-pannel>.content{
+.popup-pannel>.editor-content{
     padding: 1em;
 }
 

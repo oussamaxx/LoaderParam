@@ -2,75 +2,109 @@
   <transition name="fade">
     <div id="content_loading" style="position:absolute;z-index:9999;width:100%;height:100%;background:#f2f6f9;">
       <import-param @imported-param="importedParam"/>
-      <vue-draggable-resizable class="popup-pannel" :drag-handle="'.header'" :parent="true"
+      <vue-draggable-resizable class="popup-pannel" :drag-handle="'.panel-heading'" :parent="true"
                                :active="true"
                                class-name-active="active-pannel"
                                @activated="onEditorActivated"
                                @deactivated="onEditorDeactivated"
                                :resizable="false"
                                h="auto" :w="400" :max-width="400" :max-height="800">
-        <div class="header" style="max-height: 20px;">
-          <div class="row">
-            <div class="eleven columns">
-              Editor (drag)
+        <nav class="panel">
+          <div class="panel-heading">
+            <div class="columns">
+              <div class="column is-narrow">
+                Editor (drag)
+              </div>
+              <div class="column is-1 is-offset-6">
+                <div @click="minimizeEditor" style="cursor:pointer"> {{editorMinimized ? '➕' : '➖'}} </div>
+              </div>
             </div>
-            <div class="one column">
-              <div @click="minimizeEditor" style="cursor:pointer"> {{editorMinimized ? '➕' : '➖'}} </div>
-            </div>
-
           </div>
 
-        </div>
+          <p class="panel-tabs">
+            <a :class="{'is-active': activeTab === 'general'}" @click="openTab('general')">General</a>
+            <a :class="{'is-active': activeTab === 'bubbles'}" @click="openTab('bubbles')">Bubbles</a>
+            <a :class="{'is-active': activeTab === 'logo'}" @click="openTab('logo')">Logo</a>
+            <a :class="{'is-active': activeTab === 'imp-exp'}" @click="openTab('imp-exp')">Import/Export</a>
+          </p>
 
-        <div class="content" ref="editorContent" :style="{'display': editorMinimized ? 'none': null}">
+        </nav>
+
+        <div class="editor-content" :style="{'display': editorMinimized ? 'none': null}">
           <template v-if="singleEditMode && selectedBubble">
             <div style="overflow: auto; max-height:240px;">
               <bubbleEdit :index="0" :bubble="selectedBubble"/>
             </div>
           </template>
           <template v-else>
-            <label>
-              <input type="checkbox" v-model="param.showBubbles">
-              <span class="label-body">Show Bubbles</span>
-            </label>
-            <label>
-              <input type="checkbox" v-model="param.playAnimation">
-              <span class="label-body">Bubble Animation</span>
-            </label>
-            <div>
-              <label for="progresscolorInput">Progress Color</label>
-              <input class="u-full-width" type="color" placeholder="#2d" v-model="param.progressColor" id="progresscolorInput">
+
+            <div v-if="activeTab === 'general'" data-name="general-tab">
+              <div class="field">
+                <div class="control">
+                  <label class="checkbox">
+                    <input type="checkbox" v-model="param.showBubbles">
+                    Show Bubbles
+                  </label>
+                </div>
+              </div>
+              <div class="field">
+                <div class="controle">
+                  <label class="checkbox">
+                    <input type="checkbox" v-model="param.playAnimation">
+                    Bubble Animation
+                  </label>
+                </div>
+              </div>
+              <div class="field">
+                <label class="label">Progress Color</label>
+                <div class="controle">
+                  <input class="u-full-width" type="color" placeholder="#2d" v-model="param.progressColor"
+                         id="progresscolorInput" style="width: 100%">
+                </div>
+              </div>
             </div>
 
-            <hr>
-            <label><strong>Bubbles:</strong></label>
+            <div v-if="activeTab === 'bubbles'" data-name="bubbles-tab">
+              <div class="field">
+                <div class="control">
+                  <label for="exampleRecipientInput">Lang Code</label>
+                  <v-select :options="availbleLangs" v-model="selected_lang" taggable
+                            @option:created="createLang"
+                            :clearable="false" id="exampleRecipientInput"/>
+                </div>
+              </div>
 
-            <label for="exampleRecipientInput">Lang Code</label>
-            <v-select :options="availbleLangs" v-model="selected_lang" taggable
-                      @option:created="createLang"
-                      :clearable="false" id="exampleRecipientInput"/>
-            <div style="overflow: auto; max-height:240px;">
-              <bubbleEdit style="margin: 10px;" v-for="(bubble,i) in bubbles" @onDeleteBubble="deleteBubble(i)" :key="i" :index="i" :bubble="bubble"/>
+
+              <div style="overflow: auto; max-height:420px;">
+                <bubbleEdit style="margin: 10px;" v-for="(bubble,i) in bubbles" @onDeleteBubble="deleteBubble(i)" :key="i" :index="i" :bubble="bubble"/>
+              </div>
+
+              <div style="text-align: center; margin-top: 10px">
+                <button  class="button" @click="addBubble" v-if="bubbles.length < 5">Add Bubble +</button>
+              </div>
             </div>
 
-            <div style="text-align: center; margin-top: 10px">
-              <button @click="addBubble" v-if="bubbles.length < 5">Add Bubble +</button>
+            <div v-if="activeTab === 'logo'">
+
             </div>
+            <div v-if="activeTab === 'imp-exp'">
+              <div class="columns">
+                <div class="column is-6">
+                  <button class="button" >Export Params 📥</button>
+                </div>
+                <div class="column is-6">
+                  <button class="button" @click="openImportModal" >Import Params 📤</button>
+                </div>
+              </div>
+            </div>
+
 
 
             <hr>
 
             <div style="text-align: center">
               <div class="row">
-                <button class="button-primary" @click="simulateLoading">Replay Animation 🔄</button>
-              </div>
-              <div class="row">
-                <div class="six columns">
-                  <button class="button-primary" >Export Params 📥</button>
-                </div>
-                <div class="six columns">
-                  <button class="button-primary" @click="openImportModal" >Import Params 📤</button>
-                </div>
+                <button class="button is-primary" @click="simulateLoading">Replay Animation 🔄</button>
               </div>
             </div>
           </template>
@@ -123,6 +157,7 @@ export default {
   name: "LoaderView",
   data:function(){
     return {
+      activeTab: 'general',
       progress: 0,
       selected_lang: 'fr',
       clientLogoSrc: null,
@@ -162,6 +197,9 @@ export default {
     }
   },
   methods:{
+    openTab(code){
+      this.activeTab = code
+    },
     importedParam(param){
       // if no language (no bubbles) set default one
       if(!Object.keys(param.bubbles).length){

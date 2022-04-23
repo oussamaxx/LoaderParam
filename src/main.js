@@ -15,8 +15,10 @@ Vue.config.productionTip = false
 import vSelect from 'vue-select'
 Vue.component('v-select', vSelect)
 import 'vue-draggable-resizable/dist/VueDraggableResizable.css'
-import '@/assets/css/normalize.css'
-import '@/assets/css/skeleton.css'
+/*import '@/assets/css/normalize.css'
+import '@/assets/css/skeleton.css'*/
+import '@/assets/css/bulma.min.css'
+import '@/assets/fontawesome/css/all.css'
 import '@/assets/css/style.css'
 import 'vue-select/dist/vue-select.css';
 

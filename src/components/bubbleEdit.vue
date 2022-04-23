@@ -12,21 +12,26 @@
       </div>
       <hr>
       <div>
-        <label>Content</label>
+        <h6 class="title is-6">Content</h6>
         <div v-for="(line, i) in bubble.content" :key="i">
-          <div class="row">
-            <div class="nine columns">
+          <div class="columns">
+            <div class="column is-9">
               <label :for="'label'+i">Label {{i+1}} :</label>
             </div>
-            <div class="three columns">
+            <div class="column is-3">
               <button @click="deleteLabel(i)">🗑️</button>
             </div>
           </div>
-          <input class="u-full-width" type="text" placeholder="Text..." v-model="line.label" :id="'label'+i">
+          <div class="field">
+            <div class="control">
+              <input class="input" type="text" placeholder="Text..." v-model="line.label" :id="'label'+i">
+            </div>
+          </div>
+
           <styleEditor :element="line" :noSize="true"/>
 
         </div>
-        <button @click="addLabel" v-if="bubble.content.length < 3">Add Label +</button>
+        <button class="button is-fullwidth" @click="addLabel" v-if="bubble.content.length < 3">Add Label +</button>
 
 
       </div>
