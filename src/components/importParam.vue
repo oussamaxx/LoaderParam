@@ -1,21 +1,24 @@
 <template>
   <modal name="import-dialog" height="auto" :draggable="true" >
     <div style="padding: 1em;max-height: 85vh; overflow: auto;" >
-      <div class="row">
-        <textarea rows="8" cols="66" style="height: 230px" v-model="jsonString" placeholder="{format: JSON}"></textarea>
-      </div>
-      <div class="row">
-        <json-viewer
-            :value="parsedJson"
-            copyable
-            boxed
-            sort></json-viewer>
-      </div>
-      <div class="row" style="margin-top: 10px">
-        <div class="five columns">
-          <button class="button-primary" type="submit" @click="importParam" :disabled="jsonString === ''">Import 📤</button>
+      <div class="columns">
+        <div class="column">
+          <div class="control">
+            <textarea class="textarea json-text" rows="8" v-model="jsonString" placeholder="{format: JSON}"></textarea>
+          </div>
+
         </div>
-        <div class="seven columns">
+      </div>
+      <json-viewer
+          :value="parsedJson"
+          copyable
+          boxed
+          sort></json-viewer>
+      <div class="columns" style="margin-top: 10px">
+        <div class="column is-5">
+          <button class="button is-primary" type="submit" @click="importParam" :disabled="jsonString === ''">Import 📤</button>
+        </div>
+        <div class="column is-7">
           <div class="alert-error" v-if="error">
             ⚠️ {{error}}
           </div>
@@ -305,5 +308,9 @@ export default {
   border: 1px solid #e91e63;
   color: white;
   padding: 0.5em;
+}
+.json-text {
+  font-family: Consolas, Menlo, Courier, monospace;
+  font-size: 13px;
 }
 </style>
