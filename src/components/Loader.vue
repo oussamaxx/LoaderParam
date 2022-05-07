@@ -3,7 +3,7 @@
     <div id="content_loading" style="position:absolute;z-index:9999;width:100%;height:100%;background:#f2f6f9;">
       <import-param @imported-param="importedParam"/>
       <vue-draggable-resizable class="popup-pannel" :drag-handle="'.panel-heading'" :parent="true"
-                               :active="true"
+                               :active.sync="isEditorActive"
                                class-name-active="active-pannel"
                                @activated="onEditorActivated"
                                @deactivated="onEditorDeactivated"
@@ -13,9 +13,10 @@
           <div class="panel-heading">
             <div class="columns">
               <div class="column is-narrow">
-                Editor (drag)
+                <i class="fa fa-arrows" style="margin-right:10px"></i>
+                Editor
               </div>
-              <div class="column is-1 is-offset-6">
+              <div class="column is-1 is-offset-7">
                 <div @click="minimizeEditor" style="cursor:pointer"> {{editorMinimized ? '➕' : '➖'}} </div>
               </div>
             </div>
@@ -67,9 +68,10 @@
             <div v-if="activeTab === 'bubbles'" data-name="bubbles-tab">
               <div class="field">
                 <div class="control">
-                  <label for="exampleRecipientInput">Lang Code</label>
+                  <label for="exampleRecipientInput">Language Code</label>
                   <v-select :options="availbleLangs" v-model="selected_lang" taggable
                             @option:created="createLang"
+                            @input="simulateLoading"
                             :clearable="false" id="exampleRecipientInput"/>
                 </div>
               </div>
@@ -80,7 +82,9 @@
               </div>
 
               <div style="text-align: center; margin-top: 10px">
-                <button  class="button" @click="addBubble" v-if="bubbles.length < 5">Add Bubble +</button>
+                <button  class="button" @click="addBubble" v-if="bubbles.length < 5">Add Bubble
+                  <i class="fa fa-plus-circle" style="margin-left: 5px"></i>
+                </button>
               </div>
             </div>
 
@@ -104,7 +108,7 @@
 
             <div style="text-align: center">
               <div class="row">
-                <button class="button is-primary" @click="simulateLoading">Replay Animation 🔄</button>
+                <button class="button is-primary" @click="simulateLoading">Replay Animation <i class="fa fa-arrows-rotate" style="margin-left: 5px"></i></button>
               </div>
             </div>
           </template>
@@ -122,7 +126,8 @@
       </div>
       <div class="bull-container" :class="{'popup-animate': param.showBubbles}">
         <template v-if="param.showBubbles">
-          <LoginBubble v-for="(bubble,b_i) in bubbles" @click.native="onSelectBubble(bubble, b_i)" :class="{'bubble': param.playAnimation}" :opacity-percentage="bubble.opacity" :size="bubble.size" :style="bubble.style"  :key="b_i">
+          <!--@click.native="onSelectBubble(bubble, b_i)"-->
+          <LoginBubble v-for="(bubble,b_i) in bubbles"  :class="{'bubble': param.playAnimation}" :opacity-percentage="bubble.opacity" :size="bubble.size" :style="bubble.style"  :key="b_i">
             <template v-for="(line,i) in bubble.content">
               <span   :key="i" :style="{'font-size': computeBullFontSize(bubble.size), ...line.style}">{{ line.label }}</span>
             </template>
@@ -177,6 +182,7 @@ export default {
         }
       },
       selectedBubble: null,
+      isEditorActive: true,
     }
   },
   components:{
@@ -199,6 +205,8 @@ export default {
   methods:{
     openTab(code){
       this.activeTab = code
+      // always activate editor
+      this.isEditorActive = true
     },
     importedParam(param){
       // if no language (no bubbles) set default one
@@ -302,6 +310,7 @@ export default {
       return `calc(${ratio}vw + ${ratio}vh)`
     },
     simulateLoading(){
+      console.log("simulateLoading")
       // Use setTimeout for demo
       this.init()
       setTimeout(() => {

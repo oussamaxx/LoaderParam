@@ -1,24 +1,28 @@
 <template>
   <div class="style-container">
+    <div style="text-align: right;" >
+      <i class="fa fa-arrows-rotate reset" @click="reset"></i>
+    </div>
+
     <template v-if="!noSize">
-      <div class="columns">
-        <div class="column">
+      <div class="columns fix-margin">
+        <div class="column" style="padding-top: 0">
           <label>Size:</label>
-          <vue-slider :min="0" :max="300"  v-model="element.size"></vue-slider>
+          <vue-slider :min="50" :max="300"  v-model="element.size"></vue-slider>
         </div>
       </div>
 
 
     </template>
-    <div class="columns">
+    <div class="columns fix-margin">
       <div class="column">
         <label>X:</label><!--
         <input type="range" min="-100" max="100" name="marginX">-->
-        <vue-slider :min="-100" :max="100"  @change="xRangeChanged" name="marginX"/>
+        <vue-slider :min="-100" :max="100"  v-model="xpos" @change="xRangeChanged" name="marginX"/>
       </div>
-      <div class="column">
+      <div class="column" >
         <label>Y:</label>
-        <vue-slider :min="-100" :max="100"  @change="yRangeChanged" name="marginY"/>
+        <vue-slider :min="-100" :max="100" v-model="ypos" @change="yRangeChanged" name="marginY"/>
       </div>
     </div>
 
@@ -71,6 +75,12 @@ export default {
       default: false,
     }
   },
+  data: function(){
+    return {
+      xpos: 0,
+      ypos: 0,
+    }
+  },
   components:{
     VueSlider
   },
@@ -95,6 +105,12 @@ export default {
         this.$delete(this.element.style, key);
       }
     },
+    reset(){
+      this.element.style = {}
+      this.xpos = 0;
+      this.ypos = 0;
+      this.$delete(this.element, 'size')
+    }
   },
   mounted() {
   }
@@ -112,5 +128,14 @@ button.active {
 .style-container .columns{
   margin-bottom: 0;
   font-size: 12px;
+}
+.reset {
+  cursor: pointer;
+  z-index: 1000;
+  color: cornflowerblue;
+
+}
+.fix-margin{
+  margin-top :0;
 }
 </style>
