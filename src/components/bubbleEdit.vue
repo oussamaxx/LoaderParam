@@ -5,7 +5,7 @@
       <span @click="deleteBubble" style="padding: 0;
     margin-left: 212px;">🗑️</span>
     </div>
-    <div class="content" ref="content">
+    <div class="collaps-content" ref="content">
       <div style="margin-top:10px">
         <label>Style</label>
         <styleEditor :element="bubble"/>
@@ -13,25 +13,43 @@
       <hr>
       <div>
         <h6 class="title is-6">Content</h6>
-        <div v-for="(line, i) in bubble.content" :key="i">
-          <div class="columns">
-            <div class="column is-9">
-              <label :for="'label'+i">Label {{i+1}} :</label>
-            </div>
-            <div class="column is-3">
-              <button @click="deleteLabel(i)">🗑️</button>
-            </div>
-          </div>
-          <div class="field">
-            <div class="control">
-              <input class="input" type="text" placeholder="Text..." v-model="line.label" :id="'label'+i">
-            </div>
-          </div>
 
-          <styleEditor :element="line" :noSize="true"/>
+        <ul class="list-group">
+            <li   v-for="(line, i) in bubble.content" :key="i" class="list-group-item">
+              <i class="fa fa-align-justify label-handle"></i>
+              <input class="input is-small label-input" type="text" placeholder="Text..." v-model="line.label" :id="'label'+i">
+              <div class="actions">
+                <popper
+                    trigger="clickToOpen"
+                    :options="{
+                      placement: 'bottom',
+                      modifiers: { offset: { offset: '0,10px' } }
+                    }">
+                  <div class="popper">
+                    <styleEditor :element="line" :noSize="true"/>
+                  </div>
 
-        </div>
-        <button class="button is-fullwidth" @click="addLabel" v-if="bubble.content.length < 3">Add Label +</button>
+                  <i class="fa fa-paint-brush" slot="reference"></i>
+                </popper>
+
+                <i class="fa fa-trash-can delete-label" @click="deleteLabel(i)"></i>
+              </div>
+            </li>
+            <li class="list-group-item" style="padding:0; margin-bottom: 1em">
+              <button class="button is-fullwidth add-label" @click="addLabel" v-if="bubble.content.length < 3">
+                <span style="text-decoration: underline">
+                  Add Label
+                </span>
+                <span class="icon is-medium" style="margin-left: 5px;">
+                  <i class="fa fa-circle-plus"></i>
+                </span>
+              </button>
+            </li>
+
+
+        </ul>
+
+
 
 
       </div>
@@ -41,11 +59,14 @@
 
 <script>
 import styleEditor from '@/components/StyleEditor'
+import Popper from 'vue-popperjs';
+import 'vue-popperjs/dist/vue-popper.css';
 export default {
   name: "bubbleEdit",
   props:['index', 'bubble'],
   components:{
-    styleEditor
+    styleEditor,
+    Popper
   },
   methods: {
     addLabel(){
@@ -114,11 +135,63 @@ hr{
   content: "\2212";
 }
 
-.collapsible-group>.content {
+.collapsible-group>.collaps-content {
   padding: 0 18px;
   max-height: 0;
   overflow: hidden;
   transition: max-height 0.2s ease-out;
   background-color: #f1f1f1;
+}
+.list-group {
+  display: -ms-flexbox;
+  display: -webkit-box;
+  display: flex;
+  -ms-flex-direction: column;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  flex-direction: column;
+  padding-left: 0;
+  margin-bottom: 0;
+}
+.list-group-item:first-child {
+  border-top-left-radius: .25rem;
+  border-top-right-radius: .25rem;
+}
+.list-group-item {
+  margin-top: 0;
+  position: relative;
+  display: block;
+  padding: .75rem 1.25rem;
+  margin-bottom: -1px;
+  background-color: #fff;
+  border: 1px solid rgba(0,0,0,.125);
+}
+.list-group-item:last-child {
+  margin-bottom: 0;
+  border-bottom-right-radius: .25rem;
+  border-bottom-left-radius: .25rem;
+}
+.delete-label {
+  cursor: pointer;
+}
+.actions {
+  padding-top: 6px;
+  float: right;
+}
+.actions i {
+  margin-left: 10px;
+}
+.label-input {
+  width: auto;
+  margin-left: 1em;
+}
+.content ul {
+  margin-left: 0;
+}
+.add-label {
+  border: none;
+  color: cornflowerblue;
+  font-weight: 600;
+  padding: 0;
 }
 </style>

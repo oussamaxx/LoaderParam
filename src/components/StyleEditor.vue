@@ -1,10 +1,10 @@
 <template>
-  <div>
+  <div class="style-container">
     <template v-if="!noSize">
       <div class="columns">
-        <div class="column is-5">
+        <div class="column">
           <label>Size:</label>
-          <input type="range" v-model.number="element.size" min="0" max="300" name="size">
+          <vue-slider :min="0" :max="300"  v-model="element.size"></vue-slider>
         </div>
       </div>
 
@@ -12,18 +12,19 @@
     </template>
     <div class="columns">
       <div class="column">
-        <label>X:</label>
-        <input type="range" @input="rangeChanged" min="-100" max="100" name="marginX">
+        <label>X:</label><!--
+        <input type="range" min="-100" max="100" name="marginX">-->
+        <vue-slider :min="-100" :max="100"  @change="xRangeChanged" name="marginX"/>
       </div>
       <div class="column">
         <label>Y:</label>
-        <input type="range" @input="rangeChanged" min="-100" max="100" name="marginY">
+        <vue-slider :min="-100" :max="100"  @change="yRangeChanged" name="marginY"/>
       </div>
     </div>
 
     <div class="field has-addons" style="justify-content: center">
       <p class="control">
-        <button class="button" :class="{'is-active active': isActiveStyle('font-weight')}"  @click="toggleStyle('font-weight','bold')">
+        <button class="button is-small" :class="{'is-active active': isActiveStyle('font-weight')}"  @click="toggleStyle('font-weight','bold')">
           <span class="icon is-small">
             <i class="fas fa-bold"></i>
           </span>
@@ -31,14 +32,14 @@
       </p>
 
       <p class="control">
-        <button class="button" :class="{'is-active active': isActiveStyle('font-style')}" @click="toggleStyle('font-style', 'italic')">
+        <button class="button is-small" :class="{'is-active active': isActiveStyle('font-style')}" @click="toggleStyle('font-style', 'italic')">
             <span class="icon is-small">
               <i class="fas fa-italic"></i>
             </span>
         </button>
       </p>
       <p class="control">
-        <button class="button"
+        <button class="button is-small"
                 :class="{'is-active active': isActiveStyle('text-decoration')}"
                 @click="toggleStyle('text-decoration', 'underline')">
           <span class="icon is-small">
@@ -47,7 +48,7 @@
         </button>
       </p>
       <p class="control">
-        <input class="input color-input" type="color" v-model="element.style.color">
+        <input class="input color-input is-small" type="color" v-model="element.style.color">
       </p>
     </div>
 
@@ -56,6 +57,9 @@
 </template>
 
 <script>
+import VueSlider from 'vue-slider-component'
+import 'vue-slider-component/theme/default.css'
+
 export default {
   name: "StyleEditor",
   props: {
@@ -67,9 +71,8 @@ export default {
       default: false,
     }
   },
-  data: function(){
-    return {
-    }
+  components:{
+    VueSlider
   },
   methods:{
     isActiveStyle(style){
@@ -77,17 +80,13 @@ export default {
         return false;
       return Object.prototype.hasOwnProperty.call(this.element.style, style);
     },
-    rangeChanged($event){
-      switch ($event.target.name) {
-        case "marginX":
-          this.$set(this.element.style, 'position', 'relative')
-          this.$set(this.element.style, 'right', $event.target.value + 'px')
-          break;
-        case "marginY":
-          this.$set(this.element.style, 'position', 'relative')
-          this.$set(this.element.style, 'top', $event.target.value + 'px')
-          break;
-      }
+    xRangeChanged(value){
+      this.$set(this.element.style, 'position', 'relative')
+      this.$set(this.element.style, 'right', value + 'px')
+    },
+    yRangeChanged(value){
+      this.$set(this.element.style, 'position', 'relative')
+      this.$set(this.element.style, 'top', value + 'px')
     },
     toggleStyle(key, value){
       if(!this.isActiveStyle(key)) {
@@ -109,5 +108,9 @@ button.active {
 .color-input{
   width: 50px;
   cursor: pointer;
+}
+.style-container .columns{
+  margin-bottom: 0;
+  font-size: 12px;
 }
 </style>
