@@ -2,6 +2,7 @@
   <transition name="fade">
     <div id="content_loading" style="position:absolute;z-index:9999;width:100%;height:100%;background:#f2f6f9;">
       <import-param @imported-param="importedParam"/>
+      <export-param />
       <vue-draggable-resizable class="popup-pannel" :drag-handle="'.panel-heading'" :parent="true"
                                :active.sync="isEditorActive"
                                class-name-active="active-pannel"
@@ -90,11 +91,28 @@
 
             <div v-if="activeTab === 'logo'">
 
+              <div class="file is-centered has-name is-boxed">
+                <label class="file-label">
+                  <input class="file-input" name="logo-img" type="file" @change="onFileChange">
+                  <span class="file-cta">
+                    <span class="file-icon">
+                      <i class="fas fa-upload"></i>
+                    </span>
+                    <span class="file-label">
+                      Choose an image…
+                    </span>
+                  </span>
+                  <span class="file-name">
+                    {{ logoFileName }}
+                  </span>
+                </label>
+              </div>
+
             </div>
             <div v-if="activeTab === 'imp-exp'">
               <div class="columns">
                 <div class="column is-6">
-                  <button class="button" >Export Params 📥</button>
+                  <button class="button" @click="openExportModal" >Export Params 📥</button>
                 </div>
                 <div class="column is-6">
                   <button class="button" @click="openImportModal" >Import Params 📤</button>
@@ -155,6 +173,7 @@ import { vueTopprogress } from 'vue-top-progress'
 import LoginBubble from '@/components/LoginBubble'
 import bubbleEdit from '@/components/bubbleEdit'
 import importParam from '@/components/importParam'
+import exportParam from '@/components/exportParam'
 import VueDraggableResizable from 'vue-draggable-resizable'
 import $ from "jquery";
 import ImportParam from "@/components/importParam";
@@ -166,6 +185,7 @@ export default {
       progress: 0,
       selected_lang: 'fr',
       clientLogoSrc: null,
+      logoFileName: '',
       Dfds: [],
       isLoaded: false,
       bubbleProgress: 0,
@@ -187,6 +207,7 @@ export default {
   },
   components:{
     ImportParam,
+    exportParam,
     // eslint-disable-next-line vue/no-unused-components
     vueTopprogress,
     LoginBubble,
@@ -208,6 +229,11 @@ export default {
       // always activate editor
       this.isEditorActive = true
     },
+    onFileChange(e) {
+      const file = e.target.files[0];
+      this.logoFileName = file.name;
+      this.clientLogoSrc = URL.createObjectURL(file);
+    },
     importedParam(param){
       // if no language (no bubbles) set default one
       if(!Object.keys(param.bubbles).length){
@@ -221,6 +247,9 @@ export default {
     },
     openImportModal(){
       this.$modal.show('import-dialog')
+    },
+    openExportModal(){
+      this.$modal.show('export-dialog', this.param)
     },
     onSelectBubble(bubble){
       this.selectedBubble = bubble;

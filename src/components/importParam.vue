@@ -294,10 +294,6 @@ export default {
 
 
     },
-    checkIfError(){
-
-      return false;
-    }
   }
 }
 </script>
