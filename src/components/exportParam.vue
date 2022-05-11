@@ -88,7 +88,6 @@ export default {
     },
     importParam(){
       this.error = null;
-      // todo: change console logs with showable messages (toasts)
       try {
         this.param = JSON.parse(this.jsonString)
       } catch(e){

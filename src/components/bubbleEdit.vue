@@ -1,11 +1,11 @@
 <template>
-  <div class="collapsible-group">
+  <div class="collapsible-group" id="coll">
     <div ref="collapsible" class="collapsible">
       Bubble {{ index }}
       <span @click="deleteBubble" style="padding: 0;
     margin-left: 212px;">🗑️</span>
     </div>
-    <div class="collaps-content" ref="content">
+    <div class="collaps-content" :id="'coll-content-'+index" ref="content">
       <div style="margin-top:10px">
         <label>Style</label>
         <styleEditor :element="bubble"/>
@@ -21,10 +21,8 @@
               <div class="actions">
                 <popper
                     trigger="clickToOpen"
-                    :options="{
-                      placement: 'bottom',
-                      modifiers: { offset: { offset: '0,10px' } }
-                    }">
+                    :boundaries-selector="'#coll-content-'+index"
+                    >
                   <div class="popper">
                     <styleEditor :element="line" :noSize="true"/>
                   </div>
