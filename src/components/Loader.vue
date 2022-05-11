@@ -78,7 +78,7 @@
               </div>
 
 
-              <div style="overflow: auto; max-height:420px;">
+              <div class="bubbles-editor-section">
                 <bubbleEdit style="margin: 10px;" v-for="(bubble,i) in bubbles" @onDeleteBubble="deleteBubble(i)" :key="i" :index="i" :bubble="bubble"/>
               </div>
 
@@ -340,6 +340,10 @@ export default {
     },
     simulateLoading(){
       console.log("simulateLoading")
+      // remove opacity
+      this.bubbles.forEach(bubble=>{
+        delete bubble.opacity;
+      })
       // Use setTimeout for demo
       this.init()
       setTimeout(() => {
@@ -453,5 +457,18 @@ hr{
   }
 }
 
+.bubbles-editor-section {
+  overflow: auto;
+  max-height:420px;
+}
+.bubbles-editor-section::-webkit-scrollbar {
+  width: 0.5em;
+}
 
+
+.bubbles-editor-section::-webkit-scrollbar-thumb {
+  background-color: darkgrey;
+  border-radius: 10px;
+  border: white 0px solid;
+}
 </style>
