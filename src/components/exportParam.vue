@@ -35,7 +35,7 @@
 <script>
 import JsonViewer from 'vue-json-viewer'
 export default {
-  name: "importParam",
+  name: "exportParam",
   data: function(){
     return {
       param: {},
@@ -85,92 +85,6 @@ export default {
 
       })
       this.param = unclean_param// its clean now :)
-    },
-    importParam(){
-      this.error = null;
-      try {
-        this.param = JSON.parse(this.jsonString)
-      } catch(e){
-        this.error = "Param should have a JSON format"
-        return;
-      }
-
-      //this.$forceUpdate()
-      this.$v.param.$touch()
-
-      console.log("this.$v", this.$v)
-      if(this.$v.param.$invalid){
-        console.log("INVALID")
-
-        if(!this.$v.param.isObject){
-          this.error = "Param should be an Object"
-          return
-        }else if(!this.$v.param.required){
-          this.error = "Param should have attributes"
-          return
-        }
-        if(!this.$v.param.showBubbles.isBoolean){
-          this.error = "showBubbles should be a Boolean"
-          return
-        }
-        if(!this.$v.param.playAnimation.isBoolean){
-          this.error = "playAnimation should be a Boolean"
-          return
-        }
-        if(!this.$v.param.progressColor.isHexColor){
-          this.error = "progressColor should be a color in hex format #RRGGBB"
-          return
-        }
-
-        // bubbles
-        for (const lang in this.$v.param.bubbles.$each.$iter) {
-          const lang_bubbles = this.$v.param.bubbles.$each.$iter[lang]
-          // iterate over the lang bubbles
-
-          for (const bubble_index in lang_bubbles.$each.$iter) {
-            let bubble = lang_bubbles.$each.$iter[bubble_index]
-            if(!bubble.size.numeric){
-              this.error = `bubbles[${lang}][${bubble_index}].size should be numeric`
-              return;
-            }
-
-            console.log('param is good cleaning')
-            // cleaning is here
-            // forEach language check style/content  if there is non add an empty object/array
-            if(!bubble.style.required){
-              this.$set(this.param.bubbles[lang][bubble_index], 'style', {})
-            } else if(!bubble.style.isObject){
-              this.error = `bubbles[${lang}][${bubble_index}].style should be an Object`
-              return;
-            }
-
-            if(!bubble.content.required){
-              this.$set(this.param.bubbles[lang][bubble_index], 'content', [])
-            } else if(!bubble.content.isArray){
-              this.error = `bubbles[${lang}][${bubble_index}].content should be an Array`
-            } else {
-              // verify labels
-              for(const label_index in bubble.content.$each.$iter){
-                let label_row = bubble.content.$each.$iter[label_index]
-                if(!label_row.style.required){
-                  this.$set(this.param.bubbles[lang][bubble_index].content[label_index], 'style', {})
-                } else if(!label_row.style.isObject){
-                  this.error = `bubbles[${lang}][${bubble_index}].content[${label_index}].style should be an Object`
-                  return;
-                }
-
-              }
-            }
-
-          }
-        }
-      }
-      console.log("PARAM", this.param)
-
-      // everything is good  emit the correct param
-      this.$emit('imported-param', this.param)
-
-
     },
     closeModal(){
       this.$modal.hide('export-dialog')
