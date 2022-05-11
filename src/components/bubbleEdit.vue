@@ -1,9 +1,10 @@
 <template>
   <div class="collapsible-group" id="coll">
     <div ref="collapsible" class="collapsible">
+      <i class="fa fa-align-justify bubble-drag-handle"></i>
       Bubble {{ index }}
       <span @click="deleteBubble" style="padding: 0;
-    margin-left: 212px;">🗑️</span>
+    margin-left: 190px;">🗑️</span>
     </div>
     <div class="collaps-content" :id="'coll-content-'+index" ref="content">
       <div style="margin-top:10px">
@@ -13,8 +14,38 @@
       <hr>
       <div>
         <h6 class="title is-6">Content</h6>
+        <draggable tag="ul" :list="bubble.content" class="list-group" draggable=".item" handle=".drag-handle">
+          <li   v-for="(line, i) in bubble.content" :key="i" class="list-group-item item">
+            <i class="fa fa-align-justify drag-handle"></i>
+            <input class="input is-small label-input" type="text" placeholder="Text..." v-model="line.label" :id="'label'+i">
+            <div class="actions">
+              <popper
+                  trigger="clickToOpen"
+                  :boundaries-selector="'#coll-content-'+index"
+              >
+                <div class="popper">
+                  <styleEditor :element="line" :noSize="true"/>
+                </div>
 
-        <ul class="list-group">
+                <i class="fa fa-paint-brush" slot="reference"></i>
+              </popper>
+
+              <i class="fa fa-trash-can delete-label" @click="deleteLabel(i)"></i>
+            </div>
+          </li>
+
+          <li slot="footer" class="list-group-item" style="padding:0; margin-bottom: 1em">
+            <button class="button is-fullwidth add-label" @click="addLabel" v-if="bubble.content.length < 3">
+                <span style="text-decoration: underline">
+                  Add Label
+                </span>
+              <span class="icon is-medium" style="margin-left: 5px;">
+                  <i class="fa fa-circle-plus"></i>
+                </span>
+            </button>
+          </li>
+        </draggable>
+<!--        <ul class="list-group">
             <li   v-for="(line, i) in bubble.content" :key="i" class="list-group-item">
               <i class="fa fa-align-justify label-handle"></i>
               <input class="input is-small label-input" type="text" placeholder="Text..." v-model="line.label" :id="'label'+i">
@@ -45,7 +76,7 @@
             </li>
 
 
-        </ul>
+        </ul>-->
 
 
 
@@ -58,13 +89,15 @@
 <script>
 import styleEditor from '@/components/StyleEditor'
 import Popper from 'vue-popperjs';
+import draggable from 'vuedraggable'
 import 'vue-popperjs/dist/vue-popper.css';
 export default {
   name: "bubbleEdit",
   props:['index', 'bubble'],
   components:{
     styleEditor,
-    Popper
+    Popper,
+    draggable
   },
   methods: {
     addLabel(){
@@ -191,5 +224,9 @@ hr{
   color: cornflowerblue;
   font-weight: 600;
   padding: 0;
+}
+.drag-handle,
+.bubble-drag-handle {
+  cursor: move;
 }
 </style>

@@ -9,6 +9,7 @@
                                @activated="onEditorActivated"
                                @deactivated="onEditorDeactivated"
                                :resizable="false"
+                               :enable-native-drag="true"
                                h="auto" :w="400" :max-width="400" :max-height="800">
         <nav class="panel">
           <div class="panel-heading">
@@ -78,9 +79,9 @@
               </div>
 
 
-              <div class="bubbles-editor-section">
+              <draggable tag="div" :list="bubbles" class="bubbles-editor-section"  handle=".bubble-drag-handle">
                 <bubbleEdit style="margin: 10px;" v-for="(bubble,i) in bubbles" @onDeleteBubble="deleteBubble(i)" :key="i" :index="i" :bubble="bubble"/>
-              </div>
+              </draggable>
 
               <div style="text-align: center; margin-top: 10px">
                 <button  class="button" @click="addBubble" v-if="bubbles.length < 5">Add Bubble
@@ -177,6 +178,7 @@ import exportParam from '@/components/exportParam'
 import VueDraggableResizable from 'vue-draggable-resizable'
 import $ from "jquery";
 import ImportParam from "@/components/importParam";
+import draggable from 'vuedraggable'
 export default {
   name: "LoaderView",
   data:function(){
@@ -213,7 +215,8 @@ export default {
     LoginBubble,
     bubbleEdit,
     VueDraggableResizable,
-    importParam
+    importParam,
+    draggable
   },
   computed:{
     bubbles(){
