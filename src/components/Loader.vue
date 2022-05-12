@@ -34,12 +34,6 @@
         </nav>
 
         <div class="editor-content" :style="{'display': editorMinimized ? 'none': null}">
-          <template v-if="singleEditMode && selectedBubble">
-            <div style="overflow: auto; max-height:240px;">
-              <bubbleEdit :index="0" :bubble="selectedBubble"/>
-            </div>
-          </template>
-          <template v-else>
 
             <div v-if="activeTab === 'general'" data-name="general-tab">
               <div class="field">
@@ -70,7 +64,7 @@
             <div v-if="activeTab === 'bubbles'" data-name="bubbles-tab">
               <div class="field">
                 <div class="control">
-                  <label for="exampleRecipientInput">Language Code</label>
+                  <label for="exampleRecipientInput">Language Code <i style="font-size: 9px">(add a non existing language by typing it in the selectbox)</i></label>
                   <v-select :options="availbleLangs" v-model="selected_lang" taggable
                             @option:created="createLang"
                             @input="simulateLoading"
@@ -91,10 +85,17 @@
             </div>
 
             <div v-if="activeTab === 'logo'">
+              <div class="notification is-danger" v-if="showLoadImgError">
+                <button class="delete" @click="showLoadImgError = false"></button>
+                please re-upload the image using the form bellow ,
+                or change the logo source <strong>logo.src</strong> to a full http link or base64 <i>(current value : "{{param.logo.src}}")</i> .
+                <br>
+                (NB: images that exist on smart are not available on this app) .
+              </div>
 
               <div class="file is-centered has-name is-boxed">
                 <label class="file-label">
-                  <input class="file-input" name="logo-img" type="file" @change="onFileChange">
+                  <input class="file-input" name="logo-img" type="file" accept=".gif,.png,.jpeg,.jpg" @change="onFileChange">
                   <span class="file-cta">
                     <span class="file-icon">
                       <i class="fas fa-upload"></i>
@@ -103,11 +104,12 @@
                       Choose an image…
                     </span>
                   </span>
-                  <span class="file-name">
+                  <span class="file-name" v-if="logoFileName">
                     {{ logoFileName }}
                   </span>
                 </label>
               </div>
+              <style-editor style="padding: 2em 3em 0 3em;" v-if="param.logo.src" :element="param.logo" :isImage="true"></style-editor>
 
             </div>
             <div v-if="activeTab === 'imp-exp'">
@@ -130,7 +132,6 @@
                 <button class="button is-primary" @click="simulateLoading">Replay Animation <i class="fa fa-arrows-rotate" style="margin-left: 5px"></i></button>
               </div>
             </div>
-          </template>
 
         </div>
       </vue-draggable-resizable>
@@ -157,8 +158,8 @@
       <div style="width:100%;height:20%;display: flex">
         <div style="flex-grow: 1; flex: 1;"><!-- Empty div--></div>
         <div style="flex-grow: 1;flex: 1;display: flex;justify-content: center;align-items: center">
-          <div style="display: flex;" :style="{'height': '50%', ...clientIconContainerCss}">
-            <img v-if="clientLogoSrc" :src="clientLogoSrc" style="object-fit: contain" alt="clientLogo">
+          <div style="display: flex;" :style="{'height': '50%', ...param.logo.style}">
+            <img v-if="param.logo.src" :src="param.logo.src" style="object-fit: contain" alt="clientLogo" @load="logoLoaded" @error="errorLoadingImage">
           </div>
         </div>
         <div style="flex-grow: 1;flex: 1;display: flex;justify-content: flex-end;align-items: center;">
@@ -179,6 +180,7 @@ import VueDraggableResizable from 'vue-draggable-resizable'
 import $ from "jquery";
 import ImportParam from "@/components/importParam";
 import draggable from 'vuedraggable'
+import styleEditor from '@/components/StyleEditor'
 export default {
   name: "LoaderView",
   data:function(){
@@ -186,25 +188,26 @@ export default {
       activeTab: 'general',
       progress: 0,
       selected_lang: 'fr',
-      clientLogoSrc: null,
-      logoFileName: '',
+      logoFileName: null,
       Dfds: [],
       isLoaded: false,
       bubbleProgress: 0,
       startingProgress: 0,
-      clientIconContainerCss: null,
       editorMinimized: false,
-      singleEditMode: false,
       param: {
         progressColor: '#2299DD',
         playAnimation: true,
         showBubbles: true,
         bubbles: {
           "fr": []
+        },
+        logo: {
+          src: null,
+          style: {}
         }
       },
-      selectedBubble: null,
       isEditorActive: true,
+      showLoadImgError: false
     }
   },
   components:{
@@ -216,7 +219,8 @@ export default {
     bubbleEdit,
     VueDraggableResizable,
     importParam,
-    draggable
+    draggable,
+    styleEditor
   },
   computed:{
     bubbles(){
@@ -234,8 +238,19 @@ export default {
     },
     onFileChange(e) {
       const file = e.target.files[0];
+      if(!file)
+        return;
       this.logoFileName = file.name;
-      this.clientLogoSrc = URL.createObjectURL(file);
+      this.param.logo.src = URL.createObjectURL(file);
+      this.param.logo.name = file.name;
+    },
+    errorLoadingImage(){
+      this.showLoadImgError = true;
+      this.activeTab = 'logo';
+      this.isEditorActive = true;
+    },
+    logoLoaded(){
+      this.showLoadImgError = false;
     },
     importedParam(param){
       // if no language (no bubbles) set default one
@@ -253,10 +268,6 @@ export default {
     },
     openExportModal(){
       this.$modal.show('export-dialog', this.param)
-    },
-    onSelectBubble(bubble){
-      this.selectedBubble = bubble;
-      this.singleEditMode = true;
     },
     deleteBubble(index){
       this.bubbles.splice(index, 1)

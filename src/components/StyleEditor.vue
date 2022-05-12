@@ -4,7 +4,7 @@
       <i class="fa fa-arrows-rotate reset" @click="reset"></i>
     </div>
 
-    <template v-if="!noSize">
+    <template v-if="!noSize && !isImage">
       <div class="columns fix-margin">
         <div class="column" style="padding-top: 0">
           <label>Size:</label>
@@ -14,6 +14,16 @@
 
 
     </template>
+
+    <template v-if="isImage">
+      <div class="columns fix-margin">
+        <div class="column" style="padding-top: 0">
+          <label>Size:</label>
+          <vue-slider :min="5" :max="100" v-model="height" @change="heightChanged"></vue-slider>
+        </div>
+      </div>
+    </template>
+
     <div class="columns fix-margin">
       <div class="column">
         <label>X:</label><!--
@@ -26,7 +36,7 @@
       </div>
     </div>
 
-    <div class="field has-addons" style="justify-content: center">
+    <div class="field has-addons" v-if="!isImage" style="justify-content: center">
       <p class="control">
         <button class="button is-small" :class="{'is-active active': isActiveStyle('font-weight')}"  @click="toggleStyle('font-weight','bold')">
           <span class="icon is-small">
@@ -73,12 +83,17 @@ export default {
     noSize:{
       type: Boolean,
       default: false,
+    },
+    isImage:{
+      type: Boolean,
+      default: false,
     }
   },
   data: function(){
     return {
       xpos: 0,
       ypos: 0,
+      height: 50,
     }
   },
   components:{
@@ -89,6 +104,9 @@ export default {
       if(!this.element.style)
         return false;
       return Object.prototype.hasOwnProperty.call(this.element.style, style);
+    },
+    heightChanged(value){
+      this.$set(this.element.style, 'height', value + '%')
     },
     xRangeChanged(value){
       this.$set(this.element.style, 'position', 'relative')
@@ -109,6 +127,7 @@ export default {
       this.element.style = {}
       this.xpos = 0;
       this.ypos = 0;
+      this.height = 50;
       this.$delete(this.element, 'size')
     }
   },

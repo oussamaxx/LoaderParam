@@ -84,6 +84,17 @@ export default {
         })
 
       })
+      // Clean Logo
+      if(isEmpty(unclean_param.logo.style)){
+        delete unclean_param.logo.style
+      }
+      // put file name instead of src
+      if(unclean_param.logo.name){
+        unclean_param.logo.src = unclean_param.logo.name
+        delete unclean_param.logo.name
+      }
+      if(!unclean_param.logo.src)
+        delete unclean_param.logo
       this.param = unclean_param// its clean now :)
     },
     closeModal(){
