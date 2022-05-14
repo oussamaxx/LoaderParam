@@ -160,8 +160,12 @@ export default {
         },
         logo: {
           isObject,
-          source:{
+          src:{
             alphaNum,
+          },
+          style:{
+            isObject,
+            required,
           }
         },
         bubbles:{
@@ -255,7 +259,6 @@ export default {
               return;
             }
 
-            console.log('param is good cleaning')
             // cleaning is here
             // forEach language check style/content  if there is non add an empty object/array
             if(!bubble.style.required){
@@ -284,6 +287,15 @@ export default {
             }
 
           }
+        }
+        // logo
+        if(!this.$v.param.logo.isObject){
+          this.error = "logo should be an object containing src and style"
+          return
+        }
+        if(this.$v.param.logo.style.$model !== undefined && !this.$v.param.logo.style.isObject){
+          this.error = "logo.style should be an object"
+          return
         }
       }
       console.log("PARAM", this.param)
