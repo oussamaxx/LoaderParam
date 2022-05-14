@@ -22,7 +22,7 @@
           <button class="button" type="submit" @click="raw = !raw" >{{ raw ? 'Beautify' : 'Raw'}}</button>
         </div>
         <div class="column is-7">
-          <div class="alert-error" v-if="error">
+          <div class="alert-warning" v-if="error">
             ⚠️ {{error}}
           </div>
         </div>
@@ -66,6 +66,15 @@ export default {
       let langs = Object.keys(unclean_param.bubbles)
       langs.forEach(lang =>{
         let bubbles = unclean_param.bubbles[lang]
+        // if there are no bubbles remove the language
+        if(!bubbles.length){
+          delete unclean_param.bubbles[lang]
+          return;
+        } else if(bubbles.length < 3){
+          // if there are less then 3 bubbles then show a warning
+          this.error = `warning: bubbles in lang [${lang}] are less than 3.`
+        }
+
         bubbles.forEach(bubble=>{
           // remove style object if empty
           if(isEmpty(bubble.style)){
@@ -108,6 +117,12 @@ export default {
 .alert-error{
   background-color: #ff0040;
   border: 1px solid #e91e63;
+  color: white;
+  padding: 0.5em;
+}
+.alert-warning{
+  background-color: #ff8c00;
+  border: 1px solid #e95b1e;
   color: white;
   padding: 0.5em;
 }

@@ -64,11 +64,32 @@
             <div v-if="activeTab === 'bubbles'" data-name="bubbles-tab">
               <div class="field">
                 <div class="control">
-                  <label for="exampleRecipientInput">Language Code <i style="font-size: 9px">(add a non existing language by typing it in the selectbox)</i></label>
-                  <v-select :options="availbleLangs" v-model="selected_lang" taggable
-                            @option:created="createLang"
-                            @input="simulateLoading"
-                            :clearable="false" id="exampleRecipientInput"/>
+                  <label for="exampleRecipientInput">Language Code</label>
+<!--                  <div class="counter" style="background-color: red;display: inline-block;font-size: 10px;border-radius: 10px;color: white;">
+                    <span>1</span>
+                  </div>-->
+                  <v-select :options="availbleLangs" v-model="selected_lang"
+                            @input="languageChanged"
+                            :reduce="option=> option.label"
+                            :clearable="false" id="exampleRecipientInput">
+                    <template #option="option" >
+                      <div class="columns">
+                        <div class="column is-4">
+                          <span class="fi" :class="`fi-${langToCountry(option.label)}`"></span>
+                          {{option.label}}
+                        </div>
+                        <div class="column is-4 is-offset-4" style="text-align: right">
+                          <span class="tag is-warning" v-if="option.bubbleCount > 0 && option.bubbleCount < 3" style="font-size: 9px">Not enough bubbles</span>
+                          <span class="tag is-success" style="font-size: 9px" v-else-if="option.bubbleCount >= 3">Valide</span>
+                          <span class="tag is-light" style="font-size: 9px" v-else>Empty</span>
+                        </div>
+                      </div>
+                    </template>
+                    <template #selected-option="option">
+                      <span class="fi" :class="`fi-${langToCountry(option.label)}`"></span>
+                      <span style="margin-left: 0.5em">{{option.label}}</span>
+                    </template>
+                  </v-select>
                 </div>
               </div>
 
@@ -181,6 +202,7 @@ import $ from "jquery";
 import ImportParam from "@/components/importParam";
 import draggable from 'vuedraggable'
 import styleEditor from '@/components/StyleEditor'
+import 'flag-icons/css/flag-icons.min.css'
 export default {
   name: "LoaderView",
   data:function(){
@@ -207,7 +229,7 @@ export default {
         }
       },
       isEditorActive: true,
-      showLoadImgError: false
+      showLoadImgError: false,
     }
   },
   components:{
@@ -227,10 +249,21 @@ export default {
       return this.param.bubbles[this.selected_lang]
     },
     availbleLangs(){
-      return Object.keys(this.param.bubbles)
+      const langs = ['fr',  'en', 'de', 'es', 'cz', 'pl']
+      let result = []
+      langs.forEach(lang=>{
+        result.push({label: lang, bubbleCount: this.bubbleCount(lang)})
+      })
+      return result.sort((a,b)=> b.bubbleCount - a.bubbleCount)
     }
   },
   methods:{
+    bubbleCount(lang){
+      if(!this.param.bubbles[lang])
+        return 0;
+      else
+        return this.param.bubbles[lang].length
+    },
     openTab(code){
       this.activeTab = code
       // always activate editor
@@ -309,6 +342,14 @@ export default {
       console.log("created lang:", lang)
       this.$set(this.param.bubbles, lang, [])
     },
+    langToCountry(lang){
+      switch(lang){
+        case "en":
+         return "gb"
+        default:
+          return lang
+      }
+    },
     addBubble(){
       this.bubbles.push({
         content:[],
@@ -351,6 +392,12 @@ export default {
     computeBullFontSize(bullSize = 150){
       let ratio = bullSize * 0.004;
       return `calc(${ratio}vw + ${ratio}vh)`
+    },
+    languageChanged(){
+      // if the lang dosn't exist then create it
+      if(this.selected_lang && !this.param.bubbles[this.selected_lang])
+        this.createLang(this.selected_lang)
+      this.simulateLoading()
     },
     simulateLoading(){
       console.log("simulateLoading")
