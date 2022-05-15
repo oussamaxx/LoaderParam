@@ -99,9 +99,13 @@
               </draggable>
 
               <div style="text-align: center; margin-top: 10px">
+                <div class="alert-warning" v-if="bubbles.length < 3" style="font-size: 9px; margin-bottom: 10px">
+                  ⚠️ You still didn't reach the required number of bubbles ({{3 - bubbles.length}}) <u style="cursor: pointer" @click="createNeededBubbles">(create the bubbles)</u>
+                </div>
                 <button  class="button" @click="addBubble" v-if="bubbles.length < 5">Add Bubble
                   <i class="fa fa-plus-circle" style="margin-left: 5px"></i>
                 </button>
+
               </div>
             </div>
 
@@ -363,6 +367,14 @@ export default {
         opacity: 100
       })
     },
+    createNeededBubbles(){
+      console.log("(3 - this.bubbles.length)", (3 - this.bubbles.length))
+      let to_create_nbr = (3 - this.bubbles.length)
+      for(let i=0; i< to_create_nbr; i++){
+        console.log("HHEREE", i)
+        this.addBubble();
+      }
+    },
     loadBubbles() {
       this.startingProgress = (100 - this.progress);
       this.bubbleProgress = this.startingProgress / this.bubbles.length;
@@ -442,6 +454,12 @@ export default {
 </script>
 
 <style scoped>
+.alert-warning{
+  background-color: #ff8c00;
+  border: 1px solid #e95b1e;
+  color: white;
+  padding: 0.5em;
+}
 hr{
   margin-top: 2rem;
   margin-bottom: 2rem;
