@@ -18,13 +18,15 @@
         <div class="column is-2">
           <button class="button is-primary" type="submit" @click="closeModal">Okay 😊</button>
         </div>
-        <div class="column is-3">
-          <button class="button" type="submit" @click="raw = !raw" >{{ raw ? 'Beautify' : 'Raw'}}</button>
+        <div class="column">
+          <button class="button" type="submit" @click="raw = !raw" style="margin-right: 5px" >{{ raw ? 'Beautify' : 'Raw'}}</button>
+          <button class="button" type="submit" v-if="isFileUploaded" @click="wantBase64 = !wantBase64; toggleBase64()" >Convert Logo to {{ wantBase64 ? 'FileName' : 'Base64'}}</button>
         </div>
-        <div class="column is-7">
-          <div class="alert-warning" v-if="error">
-            ⚠️ {{error}}
-          </div>
+
+      </div>
+      <div style="text-align: center">
+        <div class="alert-warning" v-if="error">
+          ⚠️ {{error}}
         </div>
       </div>
 
@@ -41,6 +43,10 @@ export default {
       param: {},
       error: null,
       raw: false,
+      logoFileName: null,
+      logoBase64: null,
+      wantBase64: false,
+      isFileUploaded: false,
     }
   },
   components:{
@@ -56,7 +62,14 @@ export default {
     }
   },
   methods:{
+    init(){
+      this.logoFileName = null
+      this.logoBase64= null
+      this.error = null
+      this.isFileUploaded = false
+    },
     prepareParam(param){
+      this.init()
       function isEmpty(obj) {
         return obj && Object.keys(obj).length === 0 && Object.getPrototypeOf(obj) === Object.prototype;
       }
@@ -99,12 +112,26 @@ export default {
       }
       // put file name instead of src
       if(unclean_param.logo.name){
-        unclean_param.logo.src = unclean_param.logo.name
+        this.isFileUploaded = true;
+        this.logoBase64 = unclean_param.logo.src;
+        this.logoFileName = unclean_param.logo.name;
         delete unclean_param.logo.name
+        if(this.wantBase64){
+          unclean_param.logo.src = this.logoBase64;
+        } else {
+          unclean_param.logo.src = this.logoFileName
+        }
       }
       if(!unclean_param.logo.src)
         delete unclean_param.logo
       this.param = unclean_param// its clean now :)
+    },
+    toggleBase64(){
+      if(this.wantBase64){
+        this.param.logo.src = this.logoBase64;
+      } else {
+        this.param.logo.src = this.logoFileName
+      }
     },
     closeModal(){
       this.$modal.hide('export-dialog')

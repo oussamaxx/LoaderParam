@@ -273,9 +273,13 @@ export default {
       const file = e.target.files[0];
       if(!file)
         return;
-      this.logoFileName = file.name;
-      this.param.logo.src = URL.createObjectURL(file);
-      this.param.logo.name = file.name;
+      let reader = new FileReader();
+      reader.onloadend = () => {
+        this.logoFileName = file.name;
+        this.param.logo.src = reader.result;
+        this.param.logo.name = file.name;
+      }
+      reader.readAsDataURL(file);
     },
     errorLoadingImage(){
       this.showLoadImgError = true;
@@ -290,6 +294,8 @@ export default {
       if(!Object.keys(param.bubbles).length){
         param.bubbles.fr = []
       }
+      if(param.logo.src)
+        this.logoFileName = null
       // select the first language that comes in bubbles
       this.selected_lang = Object.keys(param.bubbles)[0]
       this.param = param
