@@ -289,11 +289,13 @@ export default {
           }
         }
         // logo
-        if(!this.$v.param.logo.isObject){
+        if(!this.$v.param.logo.$model){
+          this.$set(this.param, 'logo', {})
+        } else if(!this.$v.param.logo.isObject){
           this.error = "logo should be an object containing src and style"
           return
         }
-        if(this.$v.param.logo.style.$model !== undefined && !this.$v.param.logo.style.isObject){
+        if(this.$v.param.logo.style.$model && !this.$v.param.logo.style.isObject){
           this.error = "logo.style should be an object"
           return
         }

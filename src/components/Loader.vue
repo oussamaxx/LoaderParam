@@ -294,7 +294,7 @@ export default {
       if(!Object.keys(param.bubbles).length){
         param.bubbles.fr = []
       }
-      if(param.logo.src)
+      if(param.logo && param.logo.src)
         this.logoFileName = null
       // select the first language that comes in bubbles
       this.selected_lang = Object.keys(param.bubbles)[0]
