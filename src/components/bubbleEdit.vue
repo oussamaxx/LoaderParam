@@ -2,7 +2,7 @@
   <div class="collapsible-group" id="coll">
     <div ref="collapsible" class="collapsible">
       <i class="fa fa-align-justify bubble-drag-handle"></i>
-      Bubble {{ index }}
+      {{ $t('bubble') }} {{ index }}
       <span @click="deleteBubble" style="padding: 0;
     margin-left: 190px;">🗑️</span>
     </div>
@@ -13,7 +13,7 @@
       </div>
       <hr>
       <div>
-        <h6 class="title is-6">Content</h6>
+        <h6 class="title is-6">{{$t('content')}}</h6>
         <draggable tag="ul" :list="bubble.content" class="list-group" draggable=".item" handle=".drag-handle">
           <li   v-for="(line, i) in bubble.content" :key="i" class="list-group-item item">
             <i class="fa fa-align-justify drag-handle"></i>
@@ -37,7 +37,7 @@
           <li slot="footer" class="list-group-item" style="padding:0; margin-bottom: 1em">
             <button class="button is-fullwidth add-label" @click="addLabel" v-if="bubble.content.length < 3">
                 <span style="text-decoration: underline">
-                  Add Label
+                 {{ $t('Add Lable') }}
                 </span>
               <span class="icon is-medium" style="margin-left: 5px;">
                   <i class="fa fa-circle-plus"></i>

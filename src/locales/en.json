@@ -1,3 +1,32 @@
 {
-  "message": "hello i18n !!"
+  "editorTitle": "Editor",
+  "menu":{
+    "general": "General",
+    "bubbles": "Bubbles",
+    "logo": "Logo",
+    "importExport": "Import/Export"
+  },
+  "showBubbles": "Show Bubbles",
+  "bubbleAnim": "Bubble Animation",
+  "progColor": "Progress Color",
+  "langCode": "Language Code",
+  "notEnoughBubbles": "Not enough bubbles",
+  "valide": "Valid",
+  "empty": "Empty",
+  "warning": "⚠️ You still didn't reach the required number of bubbles",
+  "createBubble": "create the bubbles",
+  "addBubble": "Add Bubble",
+  "imgUploadWarn": " please re-upload the image using the form bellow , or change the logo source ",
+  "logoSrc": "logo.src",
+  "imgUploadWarn2": " to a full http link or base64 ",
+  "currentValueImg": "current value",
+  "nb": " (NB: images that exist on smart are not available on this app) .",
+  "chooseImg": "  Choose an image …",
+  "replayAnim": "Replay Animation",
+  "bubble": "Bubble",
+  "content": "Content",
+  "addLable": " Add Label"
+
+  
+
 }
