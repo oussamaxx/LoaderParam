@@ -37,7 +37,7 @@
           <li slot="footer" class="list-group-item" style="padding:0; margin-bottom: 1em">
             <button class="button is-fullwidth add-label" @click="addLabel" v-if="bubble.content.length < 3">
                 <span style="text-decoration: underline">
-                 {{ $t('Add Lable') }}
+                 {{ $t('addLabel') }}
                 </span>
               <span class="icon is-medium" style="margin-left: 5px;">
                   <i class="fa fa-circle-plus"></i>
