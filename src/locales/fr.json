@@ -1,0 +1,32 @@
+{
+  "editorTitle": "Editeur",
+  "menu":{
+    "general": "Général",
+    "bubbles": "Bulles",
+    "logo": "Logo",
+    "importExport": "Import/Export"
+  },
+  "showBubbles": "Afficher les Bulles",
+  "bubbleAnim": "Animation des bulles",
+  "progColor": "Couleur de progression ",
+  "langCode": "Code du language ",
+  "notEnoughBubbles": "Pas assez de bulles ",
+  "valide": "Valide",
+  "empty": "Vide",
+  "warning": "⚠️ Vous n'avez pas encore atteint le nombre requis de bulles  ",
+  "createBubble": "Créer les bulles",
+  "addBubble": "Ajouter Bulle",
+  "imgUploadWarn": " veuillez re-télécharger l'image en utilisant le bouton ci-dessous, ou changer la source du logo ",
+  "logoSrc": "logo.src",
+  "imgUploadWarn2": " vers un lien http complet ou base64 ",
+  "currentValueImg": "Valeur actuelle",
+  "nb": " (NB: les images qui existent sur smart ne sont pas disponibles sur cette application) .",
+  "chooseImg": "  Choisir une image …",
+  "replayAnim": "Refaire L'animation",
+  "bubble": "Bulle",
+  "content": "Contenu",
+  "addLable": " Ajouter Label"
+
+  
+
+}
