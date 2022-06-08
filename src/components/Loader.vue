@@ -29,23 +29,20 @@
             <a :class="{ 'is-active': activeTab === 'bubbles' }" @click="openTab('bubbles')">{{ $t("menu.bubbles") }}</a>
             <a :class="{ 'is-active': activeTab === 'logo' }" @click="openTab('logo')">{{ $t("menu.logo") }}</a>
             <a :class="{ 'is-active': activeTab === 'imp-exp' }" @click="openTab('imp-exp')">{{ $t("menu.importExport") }}</a>
+            <v-select v-model="selectedLanguage" :options="languages" @input="switchLocale" :clearable="false" :searchable="false" class="country-select">
+              <template #option="option">
+                    <div>
+                      <span :class="`fi-${langToCountry(option.label)}`" class="fi"></span>
+                      {{ option.label }}
+                    </div>
+              </template>
+              <template #selected-option="option">
+                <span :class="`fi-${langToCountry(option.label)}`" class="fi"></span>
+<!--                <span style="margin-left: 0.5em">{{ option.label }}</span>-->
+              </template>
+            </v-select>
           </p>
-<!--          <v-select
-              :options="languages"
-              v-model="selectedLanguage"
-              @input="switchLocale"
-          >
-            <template #option="option">
-              <div >
-                        <span
-                            class="fi"
-                            :class="`fi-${langToCountry(option.label)}`"
-                        ></span>
-                {{ option.label }}
-              </div>
 
-            </template>
-          </v-select>-->
         </nav>
 
         <div class="editor-content" :style="{'display': editorMinimized ? 'none': null}">
@@ -575,5 +572,18 @@ hr{
   background-color: darkgrey;
   border-radius: 10px;
   border: white 0px solid;
+}
+.country-select >>> .vs__dropdown-toggle {
+  border: unset;
+}
+.country-select.vs--open >>> .vs__selected {
+  position: unset;
+}
+.country-select >>> .vs__search {
+  padding: 0;
+}
+
+.country-select >>> .vs__dropdown-menu {
+  min-width: 5.5em;
 }
 </style>
