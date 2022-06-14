@@ -21,7 +21,9 @@ import '@/assets/css/bulma.min.css'
 import '@/assets/fontawesome/css/all.css'
 import '@/assets/css/style.css'
 import 'vue-select/dist/vue-select.css';
+import i18n from './i18n'
 
 new Vue({
-  render: h => h(App),
+  i18n,
+  render: h => h(App)
 }).$mount('#app')

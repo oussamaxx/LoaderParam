@@ -15,8 +15,8 @@
           <div class="panel-heading">
             <div class="columns">
               <div class="column is-narrow">
-                <i class="fa fa-arrows" style="margin-right:10px"></i>
-                Editor
+                <i class="fa fa-arrows" style="margin-right: 10px"></i>
+                {{ $t("editorTitle") }}
               </div>
               <div class="column is-1 is-offset-7">
                 <div @click="minimizeEditor" style="cursor:pointer"> {{editorMinimized ? '➕' : '➖'}} </div>
@@ -25,10 +25,22 @@
           </div>
 
           <p class="panel-tabs">
-            <a :class="{'is-active': activeTab === 'general'}" @click="openTab('general')">General</a>
-            <a :class="{'is-active': activeTab === 'bubbles'}" @click="openTab('bubbles')">Bubbles</a>
-            <a :class="{'is-active': activeTab === 'logo'}" @click="openTab('logo')">Logo</a>
-            <a :class="{'is-active': activeTab === 'imp-exp'}" @click="openTab('imp-exp')">Import/Export</a>
+            <a :class="{ 'is-active': activeTab === 'general' }" @click="openTab('general')">{{ $t("menu.general") }}</a>
+            <a :class="{ 'is-active': activeTab === 'bubbles' }" @click="openTab('bubbles')">{{ $t("menu.bubbles") }}</a>
+            <a :class="{ 'is-active': activeTab === 'logo' }" @click="openTab('logo')">{{ $t("menu.logo") }}</a>
+            <a :class="{ 'is-active': activeTab === 'imp-exp' }" @click="openTab('imp-exp')">{{ $t("menu.importExport") }}</a>
+            <v-select v-model="selectedLanguage" :options="languages" @input="switchLocale" :clearable="false" :searchable="false" class="country-select">
+              <template #option="option">
+                    <div>
+                      <span :class="`fi-${langToCountry(option.label)}`" class="fi"></span>
+                      {{ option.label }}
+                    </div>
+              </template>
+              <template #selected-option="option">
+                <span :class="`fi-${langToCountry(option.label)}`" class="fi"></span>
+<!--                <span style="margin-left: 0.5em">{{ option.label }}</span>-->
+              </template>
+            </v-select>
           </p>
 
         </nav>
@@ -40,7 +52,7 @@
                 <div class="control">
                   <label class="checkbox">
                     <input type="checkbox" v-model="param.showBubbles">
-                    Show Bubbles
+                    {{ $t("showBubbles") }}
                   </label>
                 </div>
               </div>
@@ -48,12 +60,12 @@
                 <div class="controle">
                   <label class="checkbox">
                     <input type="checkbox" v-model="param.playAnimation">
-                    Bubble Animation
+                    {{ $t("bubbleAnim") }}
                   </label>
                 </div>
               </div>
               <div class="field">
-                <label class="label">Progress Color</label>
+                <label class="label">{{ $t("progColor") }}</label>
                 <div class="controle">
                   <input class="u-full-width" type="color" placeholder="#2d" v-model="param.progressColor"
                          id="progresscolorInput" style="width: 100%">
@@ -64,7 +76,7 @@
             <div v-if="activeTab === 'bubbles'" data-name="bubbles-tab">
               <div class="field">
                 <div class="control">
-                  <label for="exampleRecipientInput">Language Code</label>
+                  <label for="exampleRecipientInput">{{ $t("langCode") }}</label>
 <!--                  <div class="counter" style="background-color: red;display: inline-block;font-size: 10px;border-radius: 10px;color: white;">
                     <span>1</span>
                   </div>-->
@@ -79,9 +91,9 @@
                           {{option.label}}
                         </div>
                         <div class="column is-4 is-offset-4" style="text-align: right">
-                          <span class="tag is-warning" v-if="option.bubbleCount > 0 && option.bubbleCount < 3" style="font-size: 9px">Not enough bubbles</span>
-                          <span class="tag is-success" style="font-size: 9px" v-else-if="option.bubbleCount >= 3">Valide</span>
-                          <span class="tag is-light" style="font-size: 9px" v-else>Empty</span>
+                          <span class="tag is-warning" v-if="option.bubbleCount > 0 && option.bubbleCount < 3" style="font-size: 9px">{{ $t("notEnoughBubbles") }}</span>
+                          <span class="tag is-success" style="font-size: 9px" v-else-if="option.bubbleCount >= 3">{{ $t("valide") }}</span>
+                          <span class="tag is-light" style="font-size: 9px" v-else>{{ $t("empty") }}</span>
                         </div>
                       </div>
                     </template>
@@ -100,23 +112,24 @@
 
               <div style="text-align: center; margin-top: 10px">
                 <div class="alert-warning" v-if="bubbles.length < 3" style="font-size: 9px; margin-bottom: 10px">
-                  ⚠️ You still didn't reach the required number of bubbles ({{3 - bubbles.length}}) <u style="cursor: pointer" @click="createNeededBubbles">(create the bubbles)</u>
+                  {{ $t("warning") }} ({{3 - bubbles.length}}) <u style="cursor: pointer" @click="createNeededBubbles">{{ $t("createBubble") }}</u>
                 </div>
-                <button  class="button" @click="addBubble" v-if="bubbles.length < 5">Add Bubble
+                <button  class="button" @click="addBubble" v-if="bubbles.length < 5">{{ $t("addBubble") }}
                   <i class="fa fa-plus-circle" style="margin-left: 5px"></i>
                 </button>
 
               </div>
             </div>
 
-            <div v-if="activeTab === 'logo'">
-              <div class="notification is-danger" v-if="showLoadImgError">
-                <button class="delete" @click="showLoadImgError = false"></button>
-                please re-upload the image using the form bellow ,
-                or change the logo source <strong>logo.src</strong> to a full http link or base64 <i>(current value : "{{param.logo.src}}")</i> .
-                <br>
-                (NB: images that exist on smart are not available on this app) .
-              </div>
+          <div v-if="activeTab === 'logo'">
+            <div class="notification is-danger" v-if="showLoadImgError">
+              <button class="delete" @click="showLoadImgError = false"></button>
+              {{ $t("imgUploadWarn") }}
+              <strong> {{ $t("logoSrc") }}</strong> {{ $t("imgUploadWarn2") }}
+              <i>({{ $t("currentValueImg") }} : "{{ param.logo.src }}")</i> .
+              <br />
+              {{ $t("nb") }}
+            </div>
 
               <div class="file is-centered has-name is-boxed">
                 <label class="file-label">
@@ -126,7 +139,7 @@
                       <i class="fas fa-upload"></i>
                     </span>
                     <span class="file-label">
-                      Choose an image…
+                      {{ $t("chooseImg") }}
                     </span>
                   </span>
                   <span class="file-name" v-if="logoFileName">
@@ -154,16 +167,12 @@
 
             <div style="text-align: center">
               <div class="row">
-                <button class="button is-primary" @click="simulateLoading">Replay Animation <i class="fa fa-arrows-rotate" style="margin-left: 5px"></i></button>
+                <button class="button is-primary" @click="simulateLoading">{{ $t("replayAnim") }} <i class="fa fa-arrows-rotate" style="margin-left: 5px"></i></button>
               </div>
             </div>
 
         </div>
       </vue-draggable-resizable>
-
-
-
-
 
       <vue-topprogress ref="topProgress" :color="param.progressColor" :height="5"></vue-topprogress>
       <div :class="{'slideup': param.showBubbles}" style="width:100%;height:25%;display: flex;align-items: center;justify-content: center; transform: translateY(30vh)">
@@ -212,6 +221,8 @@ export default {
   data:function(){
     return {
       activeTab: 'general',
+      languages: ["fr", "en"],
+      selectedLanguage:'fr',
       progress: 0,
       selected_lang: 'fr',
       logoFileName: null,
@@ -262,6 +273,12 @@ export default {
     }
   },
   methods:{
+    switchLocale() {
+      console.log(this.selectedLanguage)
+      if (this.$i18n.locale !== this.selectedLanguage) {
+        this.$i18n.locale = this.selectedLanguage;
+      }
+    },
     bubbleCount(lang){
       if(!this.param.bubbles[lang])
         return 0;
@@ -353,6 +370,7 @@ export default {
       this.$set(this.param.bubbles, lang, [])
     },
     langToCountry(lang){
+      lang=lang.toLowerCase();
       switch(lang){
         case "en":
          return "gb"
@@ -371,7 +389,6 @@ export default {
       console.log("(3 - this.bubbles.length)", (3 - this.bubbles.length))
       let to_create_nbr = (3 - this.bubbles.length)
       for(let i=0; i< to_create_nbr; i++){
-        console.log("HHEREE", i)
         this.addBubble();
       }
     },
@@ -555,5 +572,18 @@ hr{
   background-color: darkgrey;
   border-radius: 10px;
   border: white 0px solid;
+}
+.country-select >>> .vs__dropdown-toggle {
+  border: unset;
+}
+.country-select.vs--open >>> .vs__selected {
+  position: unset;
+}
+.country-select >>> .vs__search {
+  padding: 0;
+}
+
+.country-select >>> .vs__dropdown-menu {
+  min-width: 5.5em;
 }
 </style>
